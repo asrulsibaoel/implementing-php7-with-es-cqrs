@@ -1,0 +1,41 @@
+{
+    "name": "marc-mabe/php-enum",
+    "description": "Simple and fast implementation of enumerations with native PHP 5.3 and upper",
+    "type": "library",
+    "keywords": [
+        "enum",
+        "enumeration",
+        "enumset",
+        "enum-set",
+        "enummap",
+        "enum-map",
+        "typehint",
+        "type-hint"
+    ],
+    "homepage": "https://github.com/marc-mabe/php-enum",
+    "authors": [{
+        "name":     "Marc Bennewitz",
+        "email":    "php-enum@marc-bennewitz.de",
+        "homepage": "http://www.marc-bennewitz.de/",
+        "role":     "Lead"
+    }],
+    "license": "BSD-3-Clause",
+    "require": {
+        "php":            ">=5.3",
+        "ext-reflection": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": ">=3.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "MabeEnum\\": "src/MabeEnum/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.2-dev",
+            "dev-1.x":    "1.3-dev"
+        }
+    }
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="assets/css/styles.css">
+        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+        <script src="assets/js/jquery.min.js"></script>
+    {% block stylesheets %}{% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header"><a class="navbar-brand navbar-link" href="/">Jual Mahal </a>
+                <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+            </div>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                {#                {% block menu %}{% endblock %}#}
+                {{ include('@layout/menu.html.twig') }}
+                <ul class="nav navbar-nav navbar-right">
+                    <li role="presentation">
+                        <a href="#"> <img src="https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/128/shoping_cart.png" height="20">&nbsp;<span class="badge">6</span></a>
+                    </li>
+                    <li role="presentation"><a href="/register-form">Daftar </a></li>
+                    <li role="presentation"><a href="/login-form">Login </a></li>
+                </ul>
+                <form class="navbar-form navbar-right">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search...">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-default btn-custom">
+                                <span class="glyphicon glyphicon-search">
+                                    <span class="sr-only">Search...</span>
+                                </span>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+    {% block content %}{% endblock %}
+</div>
+<footer>
+    <div class="container">
+        {{ include('@layout/footer.html.twig') }}
+    </div>
+    <hr class="hr-style"/>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                {% block footer %}
+                    <p class="text-center">Copyright 2016 Jual Mahal. <span>Syarat &amp; Ketentuan Kebijakan Privasi</span></p>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>

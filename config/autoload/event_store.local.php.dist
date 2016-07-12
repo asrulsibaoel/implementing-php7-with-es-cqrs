@@ -1,0 +1,25 @@
+<?php
+
+use Prooph\EventStore\Adapter\Doctrine\DoctrineEventStoreAdapter;
+use Prooph\EventStore\Adapter\Doctrine\Container\DoctrineEventStoreAdapterFactory;
+
+return [
+    'dependencies' => [
+        'invokeables' => [
+
+        ],
+        'factories' => [
+            DoctrineEventStoreAdapter::class => DoctrineEventStoreAdapterFactory::class,
+        ],
+    ],
+    'prooph' => [
+        'event_store' => [
+            'adapter' => [
+                'type' => \Prooph\EventStore\Adapter\Doctrine\DoctrineEventStoreAdapter::class,
+                'options' => [
+                    'connection_alias' => 'doctrine.connection.default'
+                ],
+            ],
+        ],
+    ],
+];

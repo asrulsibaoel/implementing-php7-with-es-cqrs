@@ -1,0 +1,152 @@
+ul.list-unstyled.category-menu{
+}
+
+ul.list-inline.category-menu{
+}
+
+div.col-lg-3.col-md-3.col-sm-6.col-xs-12.product-grid-column{
+  padding-bottom:15px;
+}
+
+.segment-bottom {
+	margin-bottom: 60px;
+}
+
+.navbar {
+	margin-bottom: 0px;
+}
+.btn-custom {
+	background-color: #ae3910;
+    border-color: #ae3910;
+}
+
+.btn-custom:hover {
+	background-color: #97310e;
+    border-color: #97310e;
+}
+
+/* Kategori Dropdown Menu START */
+.dropdown-large {
+  position: static !important;
+}
+.dropdown-menu-large {
+  margin-left: 16px;
+  margin-right: 16px;
+  padding: 20px 0px;
+}
+.dropdown-menu-large > li > ul {
+  padding: 0;
+  margin: 0;
+}
+.dropdown-menu-large > li > ul > li {
+  list-style: none;
+}
+
+.menu-child-item {
+	color: #333333;
+}
+
+.dropdown-menu-large > li > ul > li.menu-child-item > a {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.428571429;
+  color: #333333;
+  white-space: normal;
+}
+.dropdown-menu-large > li ul > li.menu-child-item > a:hover,
+.dropdown-menu-large > li ul > li.menu-child-item > a:focus {
+  text-decoration: none;
+  color: #262626;
+  background-color: #f5f5f5;
+}
+.dropdown-menu-large .disabled > a,
+.dropdown-menu-large .disabled > a:hover,
+.dropdown-menu-large .disabled > a:focus {
+  color: #999999;
+}
+.dropdown-menu-large .disabled > a:hover,
+.dropdown-menu-large .disabled > a:focus {
+  text-decoration: none;
+  background-color: transparent;
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  cursor: not-allowed;
+}
+.dropdown-menu-large .dropdown-header {
+  color: #dd4814;
+  font-size: 18px;
+}
+/* Kategori Dropdown Menu END */
+
+@media (min-width: 768px) {
+.navbar {
+	border-radius: 0px;
+}
+
+/* Kategori Dropdown Menu START */
+.dropdown-menu-large {
+    margin-left: 0 ;
+    margin-right: 0 ;
+  }
+  .dropdown-menu-large > li {
+    margin-bottom: 30px;
+  }
+  .dropdown-menu-large > li:last-child {
+    margin-bottom: 0;
+  }
+  .dropdown-menu-large .dropdown-header {
+    padding: 3px 15px !important;
+  }
+/* Kategori Dropdown Menu END */
+}
+
+textarea:focus, input:focus, .uneditable-input:focus {   
+    border-color: rgba(229, 103, 23, 0.8) !important;
+    box-shadow: 0 1px 1px rgba(229, 103, 23, 0.075) inset, 0 0 8px rgba(229, 103, 23, 0.6) !important;
+    outline: 0 none !important;
+}
+
+h2,h4, .breadcrumb {
+	color: #dd4814;
+}
+
+.row-background {
+	background-color: #e77e5a;
+	padding: 25px;
+}
+
+hr.hr-style {
+	height: 6px;
+	background: url(http://ibrahimjabbari.com/english/images/hr-12.png) repeat-x 0 0;
+    border: 0;
+}
+.btn-product{
+	width: 100%;
+}
+
+.thumbnail .label a {
+	color: #fff;
+}
+
+.top-row {
+  margin-top: 20px;
+}
+
+.top-row-high {
+  margin-top: 60px;
+}
+
+
+.breadcrumb {
+  margin-bottom: 0px;
+}
+
+.spec-title {
+  font-weight: bold;
+}
+
+.btn-list {
+  margin-bottom: 2px;
+}

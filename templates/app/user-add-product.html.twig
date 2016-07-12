@@ -1,0 +1,64 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}User Add Product{% endblock %}
+
+{% block content %}
+    <div class="container segment-bottom top-row">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="login-panel panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Isi Produk</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form role="form" enctype="multipart/form-data" method="POST" action="/user-add-product-record">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label>Nama Produk</label>
+                                    <input type="text" name="product_name" class="form-control" placeholder="Nama Produk">
+                                </div>
+                                <div class="form-group">
+                                    <label>Harga</label>
+                                    <input type="number" class="form-control" placeholder="100000">
+                                </div>
+                                <div class="form-group">
+                                    <label>Detail Produk</label>
+                                    <textarea name="product_description" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Gambar Produk</label>
+                                    <input type="file" name="product_images[]" multiple>
+                                </div>
+                                <div class="form-group">
+                                    <label>Jumlah Barang</label>
+                                    <input type="number" name="amount" class="form-control" placeholder="100">
+                                </div>
+                                <div class="form-group">
+                                    <label>Currency</label>
+                                    <input type="text" name="currency" class="form-control" placeholder="IDR, USD, INR, EUR">
+                                </div>
+                                <div class="form-group">
+                                    <label>Kategori</label>
+                                    <select name="product_category" class="form-control">
+                                        <option>Pilih Kategori</option>
+                                        <option value="Mobil">Mobil</option>
+                                        <option value="Motor">Motor</option>
+                                        <option value="Properti">Properti</option>
+                                        <option value="Fashion">Fashion</option>
+                                        <option value="Perhiasan">Perhiasan</option>
+                                        <option value="Hobi">Hobi</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label >Features *</label>
+                                    <textarea class="form-control" name="product_features" placeholder="Pisahkan fitur dengan tanda koma."></textarea>
+                                </div>
+                                <button name="submit" type="submit" class="btn btn-md btn-success btn-product">Isi Produk</button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

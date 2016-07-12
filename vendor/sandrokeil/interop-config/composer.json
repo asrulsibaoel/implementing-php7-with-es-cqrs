@@ -1,0 +1,71 @@
+{
+  "name": "sandrokeil/interop-config",
+  "description": "Provides interfaces and a concrete implementation to create instances depending on configuration via factory classes and ensures a uniform config structure. It can also be used to auto discover factories and to create configuration files.",
+  "homepage": "https://github.com/sandrokeil/interop-config",
+  "license": "BSD-3-Clause",
+  "type": "library",
+  "keywords": [
+    "php",
+    "config",
+    "interop",
+    "service",
+    "factory",
+    "options",
+    "interfaces",
+    "standard",
+    "configuration"
+  ],
+  "authors": [
+    {
+      "name": "Sandro Keil",
+      "homepage": "https://sandro-keil.de",
+      "role": "maintainer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/sandrokeil/interop-config/issues",
+    "source": "https://github.com/sandrokeil/interop-config",
+    "docs": "https://github.com/sandrokeil/interop-config/doc/book"
+  },
+  "autoload": {
+    "psr-4": {
+      "Interop\\Config\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "InteropTest\\Config\\": "test/",
+      "InteropBench\\Config\\": "benchmark/"
+    }
+  },
+  "require": {
+    "php": ">=5.5"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.8",
+    "phpunit/php-invoker": "~1.1",
+    "squizlabs/php_codesniffer": "~2.3",
+    "phpbench/phpbench": "^0.5",
+    "tobiju/bookdown-bootswatch-templates": "1.0.x-dev"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0-dev",
+      "dev-develop": "1.1-dev"
+    }
+  },
+  "archive": {
+    "exclude": [
+      ".coveralls.yml",
+      ".scrutinizer.yml",
+      ".travis.yml",
+      "benchmark",
+      "build",
+      "phpbench.json.dist",
+      "phpunit.xml*",
+      "test"
+    ]
+  }
+}
