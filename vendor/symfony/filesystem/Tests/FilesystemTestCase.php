@@ -17,7 +17,7 @@ class FilesystemTestCase extends \PHPUnit_Framework_TestCase
 {
     private $umask;
 
-    static protected $longPathNamesWindows = array();
+    protected $longPathNamesWindows = array();
 
     /**
      * @var \Symfony\Component\Filesystem\Filesystem
@@ -29,37 +29,63 @@ class FilesystemTestCase extends \PHPUnit_Framework_TestCase
      */
     protected $workspace = null;
 
+    /**
+     * @var null|bool Flag for hard links on Windows
+     */
+    private static $linkOnWindows = null;
+
+    /**
+     * @var null|bool Flag for symbolic links on Windows
+     */
     private static $symlinkOnWindows = null;
 
     public static function setUpBeforeClass()
     {
-        if (!empty(self::$longPathNamesWindows)) {
-            foreach (self::$longPathNamesWindows as $path) {
-                exec('DEL '.$path);
+        if ('\\' === DIRECTORY_SEPARATOR) {
+            self::$linkOnWindows = true;
+            $originFile = tempnam(sys_get_temp_dir(), 'li');
+            $targetFile = tempnam(sys_get_temp_dir(), 'li');
+            if (true !== @link($originFile, $targetFile)) {
+                $report = error_get_last();
+                if (is_array($report) && false !== strpos($report['message'], 'error code(1314)')) {
+                    self::$linkOnWindows = false;
+                }
+            } else {
+                @unlink($targetFile);
             }
-        }
 
-        if ('\\' === DIRECTORY_SEPARATOR && null === self::$symlinkOnWindows) {
-            $target = tempnam(sys_get_temp_dir(), 'sl');
-            $link = sys_get_temp_dir().'/sl'.microtime(true).mt_rand();
-            if (self::$symlinkOnWindows = @symlink($target, $link)) {
-                unlink($link);
+            self::$symlinkOnWindows = true;
+            $originDir = tempnam(sys_get_temp_dir(), 'sl');
+            $targetDir = tempnam(sys_get_temp_dir(), 'sl');
+            if (true !== @symlink($originDir, $targetDir)) {
+                $report = error_get_last();
+                if (is_array($report) && false !== strpos($report['message'], 'error code(1314)')) {
+                    self::$symlinkOnWindows = false;
+                }
+            } else {
+                @unlink($targetDir);
             }
-            unlink($target);
         }
     }
 
     protected function setUp()
     {
         $this->umask = umask(0);
-        $this->workspace = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.time().mt_rand(0, 1000);
+        $this->filesystem = new Filesystem();
+        $this->workspace = sys_get_temp_dir().'/'.microtime(true).'.'.mt_rand();
         mkdir($this->workspace, 0777, true);
         $this->workspace = realpath($this->workspace);
-        $this->filesystem = new Filesystem();
     }
 
     protected function tearDown()
     {
+        if (!empty($this->longPathNamesWindows)) {
+            foreach ($this->longPathNamesWindows as $path) {
+                exec('DEL '.$path);
+            }
+            $this->longPathNamesWindows = array();
+        }
+
         $this->filesystem->remove($this->workspace);
         umask($this->umask);
     }
@@ -100,12 +126,19 @@ class FilesystemTestCase extends \PHPUnit_Framework_TestCase
         $this->markTestSkipped('Unable to retrieve file group name');
     }
 
-    protected function markAsSkippedIfSymlinkIsMissing($relative = false)
+    protected function markAsSkippedIfLinkIsMissing()
     {
-        if (!function_exists('symlink')) {
-            $this->markTestSkipped('Function symlink is required.');
+        if (!function_exists('link')) {
+            $this->markTestSkipped('link is not supported');
         }
 
+        if ('\\' === DIRECTORY_SEPARATOR && false === self::$linkOnWindows) {
+            $this->markTestSkipped('link requires "Create hard links" privilege on windows');
+        }
+    }
+
+    protected function markAsSkippedIfSymlinkIsMissing($relative = false)
+    {
         if ('\\' === DIRECTORY_SEPARATOR && false === self::$symlinkOnWindows) {
             $this->markTestSkipped('symlink requires "Create symbolic links" privilege on Windows');
         }

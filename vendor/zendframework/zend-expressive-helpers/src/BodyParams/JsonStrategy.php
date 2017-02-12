@@ -8,6 +8,7 @@
 namespace Zend\Expressive\Helper\BodyParams;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Zend\Expressive\Helper\Exception\MalformedRequestBodyException;
 
 class JsonStrategy implements StrategyInterface
 {
@@ -26,9 +27,15 @@ class JsonStrategy implements StrategyInterface
      */
     public function parse(ServerRequestInterface $request)
     {
-        $rawBody = $request->getBody()->getContents();
+        $rawBody = (string) $request->getBody();
+        $parsedBody = json_decode($rawBody, true);
+
+        if (! empty($rawBody) && json_last_error() !== JSON_ERROR_NONE) {
+            throw new MalformedRequestBodyException('Error when parsing JSON request body: ' . json_last_error_msg());
+        }
+
         return $request
             ->withAttribute('rawBody', $rawBody)
-            ->withParsedBody(json_decode($rawBody, true));
+            ->withParsedBody($parsedBody);
     }
 }

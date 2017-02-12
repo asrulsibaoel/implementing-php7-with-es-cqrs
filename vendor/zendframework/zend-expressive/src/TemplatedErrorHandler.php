@@ -1,8 +1,6 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @see       http://github.com/zendframework/zend-expressive for the canonical source repository
+ * @see       https://github.com/zendframework/zend-expressive for the canonical source repository
  * @copyright Copyright (c) 2015-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-expressive/blob/master/LICENSE.md New BSD License
  */
@@ -11,7 +9,7 @@ namespace Zend\Expressive;
 
 use Psr\Http\Message\RequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Zend\Stratigility\Http\Response as StratigilityResponse;
+use Zend\Diactoros\Stream;
 use Zend\Stratigility\Utils;
 
 /**
@@ -139,7 +137,8 @@ class TemplatedErrorHandler
     protected function handleError($error, Request $request, Response $response)
     {
         if ($this->renderer) {
-            $response->getBody()->write(
+            $stream = new Stream('php://temp', 'wb+');
+            $stream->write(
                 $this->renderer->render($this->templateError, [
                     'uri'      => $request->getUri(),
                     'error'    => $error,
@@ -149,6 +148,7 @@ class TemplatedErrorHandler
                     'response' => $response,
                 ])
             );
+            return $response->withBody($stream);
         }
 
         return $response;
@@ -193,9 +193,7 @@ class TemplatedErrorHandler
         }
 
         $originalResponse  = $this->originalResponse;
-        $decoratedResponse = $response instanceof StratigilityResponse
-            ? $response->getOriginalResponse()
-            : $response;
+        $decoratedResponse = $request->getAttribute('originalResponse', $response);
 
         if ($originalResponse !== $response
             && $originalResponse !== $decoratedResponse
@@ -253,9 +251,11 @@ class TemplatedErrorHandler
     private function create404(Request $request, Response $response)
     {
         if ($this->renderer) {
-            $response->getBody()->write(
+            $stream = new Stream('php://temp', 'wb+');
+            $stream->write(
                 $this->renderer->render($this->template404, [ 'uri' => $request->getUri() ])
             );
+            $response = $response->withBody($stream);
         }
         return $response->withStatus(404);
     }
@@ -280,7 +280,6 @@ class TemplatedErrorHandler
         if (! $error instanceof \Exception && ! $error instanceof \Throwable) {
             return $this->handleError($error, $request, $response);
         }
-
 
         return $this->handleException($error, $request, $response);
     }

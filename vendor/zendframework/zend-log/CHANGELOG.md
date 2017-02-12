@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.9.1 - 2016-08-11
+
+### Added
+
+- [#53](https://github.com/zendframework/zend-log/pull/53) adds a suggestion to
+  the package definition of ext/mongodb, for those who want to use the MongoDB
+  writer.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#56](https://github.com/zendframework/zend-log/pull/56) fixes an edge case
+  with the `AbstractWriter` whereby instantiating a
+  `Zend\Log\Writer\FormatterPluginManager` or `FilterPluginManager` prior to
+  creating a writer instance would lead to a naming conflict. New aliases were
+  added to prevent the conflict going forwards.
+
 ## 2.9.0 - 2016-06-22
 
 ### Added

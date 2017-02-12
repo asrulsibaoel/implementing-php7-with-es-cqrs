@@ -18,12 +18,12 @@ class LosLog implements ErrorMiddlewareInterface
 
     public function __invoke($error, Request $request, Response $response, callable $next = null)
     {
-        if ($error instanceof \Exception) {
-            $this->logger->error($error->getMessage());
+        if ($error instanceof \Throwable) {
+            $this->logger->error($error->getMessage() . '. File: ' . $error->getFile() . ':' . $error->getLine());
         }
 
         if ($next !== null) {
-            return $next($request, $response);
+            return $next($request, $response, $error);
         }
 
         return $response;

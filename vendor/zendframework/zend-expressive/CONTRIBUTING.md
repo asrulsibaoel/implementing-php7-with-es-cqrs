@@ -75,7 +75,7 @@ section on running tests.
 To run CS checks only:
 
 ```console
-$ composer cs
+$ composer cs-check
 ```
 
 To attempt to automatically fix common CS issues:
@@ -218,3 +218,8 @@ repository, we suggest doing some cleanup of these branches.
    ```console
    $ git push {username} :<branchname>
    ```
+
+
+## Conduct
+
+Please see our [CONDUCT.md](CONDUCT.md) to understand expected behavior when interacting with others in the project.

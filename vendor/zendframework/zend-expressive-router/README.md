@@ -1,6 +1,7 @@
 # zend-expressive-router
 
 [![Build Status](https://secure.travis-ci.org/zendframework/zend-expressive-router.svg?branch=master)](https://secure.travis-ci.org/zendframework/zend-expressive-router)
+[![Coverage Status](https://coveralls.io/repos/zendframework/zend-expressive-router/badge.svg?branch=master)](https://coveralls.io/r/zendframework/zend-expressive-router?branch=master)
 
 Router subcomponent for [Expressive](https://github.com/zendframework/zend-expressive).
 
@@ -28,9 +29,9 @@ We currently support and provide the following routing integrations:
   `composer require zendframework/zend-expressive-aurarouter`
 - [FastRoute](https://github.com/nikic/FastRoute):
   `composer require zendframework/zend-expressive-fastroute`
-- [ZF2 MVC Router](https://github.com/zendframework/zend-mvc):
+- [zend-router](https://github.com/zendframework/zend-router):
   `composer require zendframework/zend-expressive-zendrouter`
 
 ## Documentation
 
-Expressive provides [routing documentation](http://zend-expressive.readthedocs.org/en/latest/router/intro/).
+Expressive provides [routing documentation](https://zendframework.github.io/zend-expressive/features/router/intro/).

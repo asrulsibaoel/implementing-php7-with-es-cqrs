@@ -1,16 +1,13 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
  * @see       https://github.com/zendframework/zend-expressive for the canonical source repository
- * @copyright Copyright (c) 2015-2016 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2015-2017 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-expressive/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Expressive;
 
 use Interop\Container\ContainerInterface;
-use Interop\Container\Exception\ContainerException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Request;
@@ -18,6 +15,8 @@ use Zend\Diactoros\Response;
 use Zend\Diactoros\Response\EmitterInterface;
 use Zend\Diactoros\Response\SapiEmitter;
 use Zend\Diactoros\ServerRequestFactory;
+use Zend\Stratigility\FinalHandler;
+use Zend\Stratigility\Http\Response as StratigilityResponse;
 use Zend\Stratigility\MiddlewarePipe;
 
 /**
@@ -130,6 +129,8 @@ class Application extends MiddlewarePipe implements Router\RouteResultSubjectInt
      *
      * If $out is not provided, uses the result of `getFinalHandler()`.
      *
+     * @todo Remove logic for creating final handler for version 2.0.0.
+     * @todo Remove swallowDeprecationNotices() invocation for version 2.0.0.
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param callable|null $out
@@ -137,8 +138,20 @@ class Application extends MiddlewarePipe implements Router\RouteResultSubjectInt
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $out = null)
     {
-        $out = $out ?: $this->getFinalHandler($response);
-        return parent::__invoke($request, $response, $out);
+        $this->swallowDeprecationNotices();
+
+        if (! $out && (null === ($out = $this->getFinalHandler($response)))) {
+            $response = $response instanceof StratigilityResponse
+                ? $response
+                : new StratigilityResponse($response);
+            $out = new FinalHandler([], $response);
+        }
+
+        $result = parent::__invoke($request, $response, $out);
+
+        restore_error_handler();
+
+        return $result;
     }
 
     /**
@@ -410,6 +423,10 @@ class Application extends MiddlewarePipe implements Router\RouteResultSubjectInt
             if ($result->isMethodFailure()) {
                 $response = $response->withStatus(405)
                     ->withHeader('Allow', implode(',', $result->getAllowedMethods()));
+
+                // Need to swallow deprecation notices, as this is how 405 errors
+                // are reported in the 1.0 series.
+                $this->swallowDeprecationNotices();
                 return $next($request, $response, 405);
             }
             return $next($request, $response);
@@ -552,8 +569,9 @@ class Application extends MiddlewarePipe implements Router\RouteResultSubjectInt
      */
     public function run(ServerRequestInterface $request = null, ResponseInterface $response = null)
     {
-        $request  = $request ?: ServerRequestFactory::fromGlobals();
         $response = $response ?: new Response();
+        $request  = $request ?: ServerRequestFactory::fromGlobals();
+        $request  = $request->withAttribute('originalResponse', $response);
 
         $response = $this($request, $response);
 
@@ -653,5 +671,27 @@ class Application extends MiddlewarePipe implements Router\RouteResultSubjectInt
                 'Duplicate route detected; same name or path, and one or more HTTP methods intersect'
             );
         }
+    }
+
+    /**
+     * Register an error handler to swallow deprecation notices due to error middleware usage.
+     *
+     * @todo Remove method for version 2.0.0.
+     * @return void
+     */
+    private function swallowDeprecationNotices()
+    {
+        $previous = null;
+        $handler = function ($errno, $errstr, $errfile, $errline, $errcontext) use (&$previous) {
+            $swallow = $errno === E_USER_DEPRECATED && false !== strstr($errstr, 'error middleware is deprecated');
+
+            if ($swallow || $previous === null) {
+                return $swallow;
+            }
+
+            $previous($errno, $errstr, $errfile, $errline, $errcontext);
+        };
+
+        $previous = set_error_handler($handler);
     }
 }

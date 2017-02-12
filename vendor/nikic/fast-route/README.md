@@ -13,6 +13,8 @@ To install with composer:
 composer require nikic/fast-route
 ```
 
+Requires PHP 5.4 or newer.
+
 Usage
 -----
 
@@ -33,7 +35,13 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
 
 // Fetch method and URI from somewhere
 $httpMethod = $_SERVER['REQUEST_METHOD'];
-$uri = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+$uri = $_SERVER['REQUEST_URI'];
+
+// Strip query string (?foo=bar) and decode URI
+if (false !== $pos = strpos($uri, '?')) {
+    $uri = substr($uri, 0, $pos);
+}
+$uri = rawurldecode($uri);
 
 $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 switch ($routeInfo[0]) {
@@ -102,6 +110,9 @@ $r->addRoute('GET', '/user/{id:\d+}[/{name}]', 'handler');
 // Is equivalent to these two routes
 $r->addRoute('GET', '/user/{id:\d+}', 'handler');
 $r->addRoute('GET', '/user/{id:\d+}/{name}', 'handler');
+
+// Multiple nested optional parts are possible as well
+$r->addRoute('GET', '/user[/{id:\d+}[/{name}]]', 'handler');
 
 // This route is NOT valid, because optional parts can only occur at the end
 $r->addRoute('GET', '/user[/{id:\d+}]/{name}', 'handler');
@@ -190,13 +201,13 @@ each route info is again an array of it's parts. The structure is best understoo
     [
         [
             '/user/',
-            ['name', '[^/]+'],
+            ['id', '\d+'],
         ],
         [
             '/user/',
-            ['name', '[^/]+'],
+            ['id', '\d+'],
             '/',
-            ['id', '[0-9]+'],
+            ['name', '[^/]+'],
         ],
     ]
 

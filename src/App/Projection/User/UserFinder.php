@@ -45,16 +45,16 @@ class UserFinder
         return $stmt->fetch();
     }
 
-    public function findWhere($where = array())
-    {
-        foreach($where as $key => $val){
-            
-        }
-
-        $stmt = $this->connection->prepare(sprintf("SELECT * FROM %s where id= :user_id", Table::USER));
-        $stmt->bindValue('user_id', $userId);
-        $stmt->execute();
-        return $stmt->fetchAll();
-    }
+//    public function findWhere($where = array())
+//    {
+//        foreach($where as $key => $val){
+//
+//        }
+//
+//        $stmt = $this->connection->prepare(sprintf("SELECT * FROM %s where id= :user_id", Table::USER));
+//        $stmt->bindValue('user_id', $userId);
+//        $stmt->execute();
+//        return $stmt->fetchAll();
+//    }
 
 }

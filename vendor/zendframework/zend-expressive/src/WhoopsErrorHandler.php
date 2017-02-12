@@ -1,8 +1,6 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @see       http://github.com/zendframework/zend-expressive for the canonical source repository
+ * @see       https://github.com/zendframework/zend-expressive for the canonical source repository
  * @copyright Copyright (c) 2015-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-expressive/blob/master/LICENSE.md New BSD License
  */
@@ -13,7 +11,6 @@ use Psr\Http\Message\RequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run as Whoops;
-use Zend\Stratigility\Http\Request as StratigilityRequest;
 
 /**
  * Final handler with templated page capabilities plus Whoops exception reporting.
@@ -51,7 +48,7 @@ class WhoopsErrorHandler extends TemplatedErrorHandler
      */
     public function __construct(
         Whoops $whoops,
-        PrettyPageHandler $whoopsHandler,
+        PrettyPageHandler $whoopsHandler = null,
         Template\TemplateRendererInterface $renderer = null,
         $template404 = 'error/404',
         $templateError = 'error/error',
@@ -76,9 +73,18 @@ class WhoopsErrorHandler extends TemplatedErrorHandler
      */
     protected function handleException($exception, Request $request, Response $response)
     {
-        $this->prepareWhoopsHandler($request);
+        // Push the whoops handler if any
+        if ($this->whoopsHandler !== null) {
+            $this->whoops->pushHandler($this->whoopsHandler);
+        }
 
-        $this->whoops->pushHandler($this->whoopsHandler);
+        // Walk through all handlers
+        foreach ($this->whoops->getHandlers() as $handler) {
+            // Add fancy data for the PrettyPageHandler
+            if ($handler instanceof PrettyPageHandler) {
+                $this->prepareWhoopsHandler($request, $handler);
+            }
+        }
 
         $response
             ->getBody()
@@ -90,16 +96,15 @@ class WhoopsErrorHandler extends TemplatedErrorHandler
     /**
      * Prepare the Whoops page handler with a table displaying request information
      *
-     * @param Request $request
+     * @param Request           $request
+     * @param PrettyPageHandler $handler
      */
-    private function prepareWhoopsHandler(Request $request)
+    private function prepareWhoopsHandler(Request $request, PrettyPageHandler $handler)
     {
-        if ($request instanceof StratigilityRequest) {
-            $request = $request->getOriginalRequest();
-        }
+        $uri = $request->getAttribute('originalUri', false) ?: $request->getUri();
+        $request = $request->getAttribute('originalRequest', false) ?: $request;
 
-        $uri = $request->getUri();
-        $this->whoopsHandler->addDataTable('Expressive Application Request', [
+        $handler->addDataTable('Expressive Application Request', [
             'HTTP Method'            => $request->getMethod(),
             'URI'                    => (string) $uri,
             'Script'                 => $request->getServerParams()['SCRIPT_NAME'],

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @see       http://github.com/zendframework/zend-diactoros for the canonical source repository
- * @copyright Copyright (c) 2015 Oscar Otero (http://oscarotero.com) / Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2015-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-diactoros/blob/master/LICENSE.md New BSD License
  */
 
@@ -11,6 +11,7 @@ namespace Zend\Diactoros\Response;
 
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
+use Zend\Diactoros\RelativeStream;
 
 class SapiStreamEmitter implements EmitterInterface
 {
@@ -39,7 +40,7 @@ class SapiStreamEmitter implements EmitterInterface
 
         $range = $this->parseContentRange($response->getHeaderLine('Content-Range'));
 
-        if (is_array($range)) {
+        if (is_array($range) && $range[0] === 'bytes') {
             $this->emitBodyRange($range, $response, $maxBufferLength);
             return;
         }
@@ -56,7 +57,15 @@ class SapiStreamEmitter implements EmitterInterface
     private function emitBody(ResponseInterface $response, $maxBufferLength)
     {
         $body = $response->getBody();
-        $body->rewind();
+
+        if ($body->isSeekable()) {
+            $body->rewind();
+        }
+
+        if (! $body->isReadable()) {
+            echo $body;
+            return;
+        }
 
         while (! $body->eof()) {
             echo $body->read($maxBufferLength);
@@ -72,21 +81,34 @@ class SapiStreamEmitter implements EmitterInterface
      */
     private function emitBodyRange(array $range, ResponseInterface $response, $maxBufferLength)
     {
-        list($unit, $first, $last, $lenght) = $range;
+        list($unit, $first, $last, $length) = $range;
 
-        ++$last; //zero-based position
         $body = $response->getBody();
-        $body->seek($first);
-        $pos = $first;
 
-        while (! $body->eof() && $pos < $last) {
-            if (($pos + $maxBufferLength) > $last) {
-                echo $body->read($last - $pos);
-                break;
-            }
+        $length = $last - $first + 1;
 
-            echo $body->read($maxBufferLength);
-            $pos = $body->tell();
+        if ($body->isSeekable()) {
+            $body->seek($first);
+
+            $first = 0;
+        }
+
+        if (! $body->isReadable()) {
+            echo substr($body->getContents(), $first, $length);
+            return;
+        }
+
+        $remaining = $length;
+
+        while ($remaining >= $maxBufferLength && ! $body->eof()) {
+            $contents   = $body->read($maxBufferLength);
+            $remaining -= strlen($contents);
+
+            echo $contents;
+        }
+
+        if ($remaining > 0 && ! $body->eof()) {
+            echo $body->read($remaining);
         }
     }
 

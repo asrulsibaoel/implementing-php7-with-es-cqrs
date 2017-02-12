@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @see       http://github.com/zendframework/zend-stratigility for the canonical source repository
- * @copyright Copyright (c) 2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2015-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-stratigility/blob/master/LICENSE.md New BSD License
  */
 
@@ -18,6 +18,10 @@ use Psr\Http\Message\UriInterface;
  *
  * Decorates the PSR incoming request interface to add the ability to
  * manipulate arbitrary instance members.
+ *
+ * @deprecated since 1.3.0; to be removed with 2.0.0. Track the original
+ *     request via a request attribute or via a service instead; you can
+ *     use Zend\Stratigility\Middleware\OriginalMessages to do so.
  */
 class Request implements ServerRequestInterface
 {
@@ -50,7 +54,9 @@ class Request implements ServerRequestInterface
         }
 
         $this->originalRequest = $originalRequest;
-        $this->psrRequest      = $decoratedRequest->withAttribute('originalUri', $originalRequest->getUri());
+        $this->psrRequest      = $decoratedRequest
+            ->withAttribute('originalUri', $originalRequest->getUri())
+            ->withAttribute('originalRequest', $originalRequest);
     }
 
     /**
@@ -60,6 +66,17 @@ class Request implements ServerRequestInterface
      */
     public function getCurrentRequest()
     {
+        trigger_error(sprintf(
+            '%s is now deprecated. The request passed to your method is the current '
+            . 'request now. %s will no longer be available starting in Stratigility 2.0.0. '
+            . 'Please see '
+            . 'https://docs.zendframework.com/zend-stratigility/migration/to-v2/#original-request-response-and-uri '
+            . 'for full details.',
+            __CLASS__,
+            \Zend\Stratigility\Middleware\OriginalMessages::class,
+            __METHOD__
+        ), E_USER_DEPRECATED);
+
         return $this->psrRequest;
     }
 
@@ -70,6 +87,18 @@ class Request implements ServerRequestInterface
      */
     public function getOriginalRequest()
     {
+        trigger_error(sprintf(
+            '%s is now deprecated. Please register %s as your outermost middleware, '
+            . 'and pull the original request via the request "originalRequest" '
+            . 'attribute. %s will no longer be available starting in Stratigility 2.0.0. '
+            . 'Please see '
+            . 'https://docs.zendframework.com/zend-stratigility/migration/to-v2/#original-request-response-and-uri '
+            . 'for full details.',
+            __CLASS__,
+            \Zend\Stratigility\Middleware\OriginalMessages::class,
+            __METHOD__
+        ), E_USER_DEPRECATED);
+
         return $this->originalRequest;
     }
 

@@ -104,6 +104,8 @@ class Promise implements ExtendedPromiseInterface, CancellablePromiseInterface
                 $progressHandler = function ($update) use ($notify, $onProgress) {
                     try {
                         $notify($onProgress($update));
+                    } catch (\Throwable $e) {
+                        $notify($e);
                     } catch (\Exception $e) {
                         $notify($e);
                     }
@@ -153,6 +155,16 @@ class Promise implements ExtendedPromiseInterface, CancellablePromiseInterface
 
     private function settle(ExtendedPromiseInterface $promise)
     {
+        if ($promise instanceof LazyPromise) {
+            $promise = $promise->promise();
+        }
+
+        if ($promise === $this) {
+            $promise = new RejectedPromise(
+                new \LogicException('Cannot resolve a promise with itself.')
+            );
+        }
+
         $handlers = $this->handlers;
 
         $this->progressHandlers = $this->handlers = [];
@@ -186,6 +198,8 @@ class Promise implements ExtendedPromiseInterface, CancellablePromiseInterface
                     $this->notify($update);
                 }
             );
+        } catch (\Throwable $e) {
+            $this->reject($e);
         } catch (\Exception $e) {
             $this->reject($e);
         }

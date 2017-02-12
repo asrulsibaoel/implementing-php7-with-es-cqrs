@@ -19,11 +19,11 @@
 
 namespace Doctrine\DBAL\Migrations;
 
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Migrations\Configuration\Configuration;
 use Doctrine\DBAL\Migrations\Provider\LazySchemaDiffProvider;
 use Doctrine\DBAL\Migrations\Provider\SchemaDiffProvider;
 use Doctrine\DBAL\Migrations\Provider\SchemaDiffProviderInterface;
-use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 
 /**
  * Class which wraps a migration version and allows execution of the
@@ -224,7 +224,7 @@ class Version
             throw MigrationException::migrationNotConvertibleToSql($this->class);
         }
 
-        $this->outputWriter->write("\n# Version " . $this->version . "\n");
+        $this->outputWriter->write("\n-- Version " . $this->version . "\n");
 
         $sqlQueries = [$this->version => $queries];
         $sqlWriter = new SqlFileWriter(
@@ -323,7 +323,7 @@ class Version
         } catch (SkipMigrationException $e) {
             if ($transaction) {
                 //only rollback transaction if in transactional mode
-                $this->connection->rollback();
+                $this->connection->rollBack();
             }
 
             if ($dryRun === false) {
@@ -349,7 +349,7 @@ class Version
 
             if ($transaction) {
                 //only rollback transaction if in transactional mode
-                $this->connection->rollback();
+                $this->connection->rollBack();
             }
 
             $this->state = self::STATE_NONE;
@@ -420,9 +420,54 @@ class Version
                 ));
             }
         } else {
-            foreach ($this->sql as $query) {
-                $this->outputWriter->write('     <comment>-></comment> ' . $query);
+            foreach ($this->sql as $idx => $query) {
+                $this->outputSqlQuery($idx, $query);
             }
         }
+    }
+
+    /**
+     * Outputs a SQL query via the `OutputWriter`.
+     *
+     * @param int $idx The SQL query index. Used to look up params.
+     * @param string $query the query to output
+     * @return void
+     */
+    private function outputSqlQuery($idx, $query)
+    {
+        $params = $this->formatParamsForOutput(
+            isset($this->params[$idx]) ? $this->params[$idx] : [],
+            isset($this->types[$idx]) ? $this->types[$idx] : []
+        );
+
+        $this->outputWriter->write(rtrim(sprintf(
+            '     <comment>-></comment> %s %s',
+            $query,
+            $params
+        )));
+    }
+
+    /**
+     * Formats a set of sql parameters for output with dry run.
+     *
+     * @param $params The query parameters
+     * @param $types The types of the query params. Default type is a string
+     * @return string|null a string of the parameters present.
+     */
+    private function formatParamsForOutput(array $params, array $types)
+    {
+        if (empty($params)) {
+            return '';
+        }
+
+        $platform = $this->connection->getDatabasePlatform();
+        $out = [];
+        foreach ($params as $key => $value) {
+            $type = isset($types[$key]) ? $types[$key] : 'string';
+            $outval = Type::getType($type)->convertToDatabaseValue($value, $platform);
+            $out[] = is_string($key) ? sprintf(':%s => %s', $key, $outval) : $outval;
+        }
+
+        return sprintf('with parameters (%s)', implode(', ', $out));
     }
 }

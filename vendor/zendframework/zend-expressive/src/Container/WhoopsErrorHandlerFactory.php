@@ -1,7 +1,5 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
  * @see       https://github.com/zendframework/zend-expressive for the canonical source repository
  * @copyright Copyright (c) 2015-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-expressive/blob/master/LICENSE.md New BSD License
@@ -10,7 +8,10 @@
 namespace Zend\Expressive\Container;
 
 use Interop\Container\ContainerInterface;
+use Zend\Expressive\Template\TemplateRendererInterface;
 use Zend\Expressive\WhoopsErrorHandler;
+use Whoops\Handler\JsonResponseHandler;
+use Whoops\Run as Whoops;
 
 /**
  * Create and return an instance of the whoops error handler.
@@ -45,29 +46,86 @@ use Zend\Expressive\WhoopsErrorHandler;
  * </code>
  *
  * If any of the keys are missing, default values will be used.
+ *
+ * The whoops configuration can contain:
+ *
+ * <code>
+ * 'whoops' => [
+ *     'json_exceptions' => [
+ *         'display'    => true,
+ *         'show_trace' => true,
+ *         'ajax_only'  => true,
+ *     ]
+ * ]
+ * </code>
+ *
+ * All values are booleans; omission of any implies boolean false.
  */
 class WhoopsErrorHandlerFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        $template = $container->has('Zend\Expressive\Template\TemplateRendererInterface')
-            ? $container->get('Zend\Expressive\Template\TemplateRendererInterface')
+        $template = $container->has(TemplateRendererInterface::class)
+            ? $container->get(TemplateRendererInterface::class)
             : null;
 
         $config = $container->has('config')
             ? $container->get('config')
             : [];
 
-        $config = isset($config['zend-expressive']['error_handler'])
+        $expressiveConfig = isset($config['zend-expressive']['error_handler'])
             ? $config['zend-expressive']['error_handler']
             : [];
 
+        $whoopsConfig = isset($config['whoops'])
+            ? $config['whoops']
+            : [];
+
+        $whoops = $container->get('Zend\Expressive\Whoops');
+        $whoops->pushHandler($container->get('Zend\Expressive\WhoopsPageHandler'));
+        $this->registerJsonHandler($whoops, $whoopsConfig);
+
         return new WhoopsErrorHandler(
-            $container->get('Zend\Expressive\Whoops'),
-            $container->get('Zend\Expressive\WhoopsPageHandler'),
+            $whoops,
+            null,
             $template,
-            (isset($config['template_404']) ? $config['template_404'] : 'error/404'),
-            (isset($config['template_error']) ? $config['template_error'] : 'error/error')
+            (isset($expressiveConfig['template_404']) ? $expressiveConfig['template_404'] : 'error/404'),
+            (isset($expressiveConfig['template_error']) ? $expressiveConfig['template_error'] : 'error/error')
         );
+    }
+
+    /**
+     * If configuration indicates a JsonResponseHandler, configure and register it.
+     *
+     * @param Whoops $whoops
+     * @param array|\ArrayAccess $config
+     */
+    private function registerJsonHandler(Whoops $whoops, $config)
+    {
+        if (! isset($config['json_exceptions']['display'])
+            || empty($config['json_exceptions']['display'])
+        ) {
+            return;
+        }
+
+        $handler = new JsonResponseHandler();
+
+        if (isset($config['json_exceptions']['ajax_only'])) {
+            if (method_exists(\Whoops\Util\Misc::class, 'isAjaxRequest')) {
+                // Whoops 2.x
+                if (! \Whoops\Util\Misc::isAjaxRequest()) {
+                    return;
+                }
+            } elseif (method_exists($handler, 'onlyForAjaxRequests')) {
+                // Whoops 1.x
+                $handler->onlyForAjaxRequests(true);
+            }
+        }
+
+        if (isset($config['json_exceptions']['show_trace'])) {
+            $handler->addTraceToOutput(true);
+        }
+
+        $whoops->pushHandler($handler);
     }
 }

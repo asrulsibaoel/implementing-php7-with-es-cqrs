@@ -22,6 +22,7 @@ define('T_CLOSE_SQUARE_BRACKET', 'PHPCS_T_CLOSE_SQUARE_BRACKET');
 define('T_OPEN_PARENTHESIS', 'PHPCS_T_OPEN_PARENTHESIS');
 define('T_CLOSE_PARENTHESIS', 'PHPCS_T_CLOSE_PARENTHESIS');
 define('T_COLON', 'PHPCS_T_COLON');
+define('T_NULLABLE', 'PHPCS_T_NULLABLE');
 define('T_STRING_CONCAT', 'PHPCS_T_STRING_CONCAT');
 define('T_INLINE_THEN', 'PHPCS_T_INLINE_THEN');
 define('T_INLINE_ELSE', 'PHPCS_T_INLINE_ELSE');
@@ -73,6 +74,10 @@ define('T_GOTO_LABEL', 'PHPCS_T_GOTO_LABEL');
 define('T_BINARY_CAST', 'PHPCS_T_BINARY_CAST');
 define('T_EMBEDDED_PHP', 'PHPCS_T_EMBEDDED_PHP');
 define('T_RETURN_TYPE', 'PHPCS_T_RETURN_TYPE');
+define('T_OPEN_USE_GROUP', 'PHPCS_T_OPEN_USE_GROUP');
+define('T_CLOSE_USE_GROUP', 'PHPCS_T_CLOSE_USE_GROUP');
+define('T_ZSR', 'PHPCS_T_ZSR');
+define('T_ZSR_EQUAL', 'PHPCS_T_ZSR_EQUAL');
 
 // Some PHP 5.3 tokens, replicated for lower versions.
 if (defined('T_NAMESPACE') === false) {
@@ -130,9 +135,17 @@ if (defined('T_POW') === false) {
     define('T_POW', 'PHPCS_T_POW');
 }
 
+if (defined('T_POW_EQUAL') === false) {
+    define('T_POW_EQUAL', 'PHPCS_T_POW_EQUAL');
+}
+
 // Some PHP 7 tokens, replicated for lower versions.
 if (defined('T_SPACESHIP') === false) {
     define('T_SPACESHIP', 'PHPCS_T_SPACESHIP');
+}
+
+if (defined('T_COALESCE') === false) {
+    define('T_COALESCE', 'PHPCS_T_COALESCE');
 }
 
 // Tokens used for parsing doc blocks.
@@ -209,6 +222,7 @@ final class PHP_CodeSniffer_Tokens
                                  T_MODULUS             => 5,
                                  T_POW                 => 5,
                                  T_SPACESHIP           => 5,
+                                 T_COALESCE            => 5,
 
                                  T_SL                  => 5,
                                  T_SR                  => 5,
@@ -317,6 +331,7 @@ final class PHP_CodeSniffer_Tokens
                                    T_LOGICAL_XOR              => 3,
                                    T_METHOD_C                 => 10,
                                    T_MINUS_EQUAL              => 2,
+                                   T_POW_EQUAL                => 3,
                                    T_MOD_EQUAL                => 2,
                                    T_MUL_EQUAL                => 2,
                                    T_NAMESPACE                => 9,
@@ -353,6 +368,7 @@ final class PHP_CodeSniffer_Tokens
                                    T_OPEN_PARENTHESIS         => 1,
                                    T_CLOSE_PARENTHESIS        => 1,
                                    T_COLON                    => 1,
+                                   T_NULLABLE                 => 1,
                                    T_STRING_CONCAT            => 1,
                                    T_INLINE_THEN              => 1,
                                    T_INLINE_ELSE              => 1,
@@ -368,6 +384,7 @@ final class PHP_CodeSniffer_Tokens
                                    T_MODULUS                  => 1,
                                    T_POW                      => 2,
                                    T_SPACESHIP                => 3,
+                                   T_COALESCE                 => 2,
                                    T_BITWISE_AND              => 1,
                                    T_BITWISE_OR               => 1,
                                    T_BITWISE_XOR              => 1,
@@ -397,9 +414,11 @@ final class PHP_CodeSniffer_Tokens
     public static $assignmentTokens = array(
                                        T_EQUAL        => T_EQUAL,
                                        T_AND_EQUAL    => T_AND_EQUAL,
+                                       T_OR_EQUAL     => T_OR_EQUAL,
                                        T_CONCAT_EQUAL => T_CONCAT_EQUAL,
                                        T_DIV_EQUAL    => T_DIV_EQUAL,
                                        T_MINUS_EQUAL  => T_MINUS_EQUAL,
+                                       T_POW_EQUAL    => T_POW_EQUAL,
                                        T_MOD_EQUAL    => T_MOD_EQUAL,
                                        T_MUL_EQUAL    => T_MUL_EQUAL,
                                        T_PLUS_EQUAL   => T_PLUS_EQUAL,
@@ -493,29 +512,30 @@ final class PHP_CodeSniffer_Tokens
      * @var array(int)
      */
     public static $scopeOpeners = array(
-                                   T_CLASS     => T_CLASS,
-                                   T_INTERFACE => T_INTERFACE,
-                                   T_TRAIT     => T_TRAIT,
-                                   T_NAMESPACE => T_NAMESPACE,
-                                   T_FUNCTION  => T_FUNCTION,
-                                   T_CLOSURE   => T_CLOSURE,
-                                   T_IF        => T_IF,
-                                   T_SWITCH    => T_SWITCH,
-                                   T_CASE      => T_CASE,
-                                   T_DECLARE   => T_DECLARE,
-                                   T_DEFAULT   => T_DEFAULT,
-                                   T_WHILE     => T_WHILE,
-                                   T_ELSE      => T_ELSE,
-                                   T_ELSEIF    => T_ELSEIF,
-                                   T_FOR       => T_FOR,
-                                   T_FOREACH   => T_FOREACH,
-                                   T_DO        => T_DO,
-                                   T_TRY       => T_TRY,
-                                   T_CATCH     => T_CATCH,
-                                   T_FINALLY   => T_FINALLY,
-                                   T_PROPERTY  => T_PROPERTY,
-                                   T_OBJECT    => T_OBJECT,
-                                   T_USE       => T_USE,
+                                   T_CLASS      => T_CLASS,
+                                   T_ANON_CLASS => T_ANON_CLASS,
+                                   T_INTERFACE  => T_INTERFACE,
+                                   T_TRAIT      => T_TRAIT,
+                                   T_NAMESPACE  => T_NAMESPACE,
+                                   T_FUNCTION   => T_FUNCTION,
+                                   T_CLOSURE    => T_CLOSURE,
+                                   T_IF         => T_IF,
+                                   T_SWITCH     => T_SWITCH,
+                                   T_CASE       => T_CASE,
+                                   T_DECLARE    => T_DECLARE,
+                                   T_DEFAULT    => T_DEFAULT,
+                                   T_WHILE      => T_WHILE,
+                                   T_ELSE       => T_ELSE,
+                                   T_ELSEIF     => T_ELSEIF,
+                                   T_FOR        => T_FOR,
+                                   T_FOREACH    => T_FOREACH,
+                                   T_DO         => T_DO,
+                                   T_TRY        => T_TRY,
+                                   T_CATCH      => T_CATCH,
+                                   T_FINALLY    => T_FINALLY,
+                                   T_PROPERTY   => T_PROPERTY,
+                                   T_OBJECT     => T_OBJECT,
+                                   T_USE        => T_USE,
                                   );
 
     /**
@@ -556,6 +576,7 @@ final class PHP_CodeSniffer_Tokens
                                 T_MODULUS     => T_MODULUS,
                                 T_POW         => T_POW,
                                 T_SPACESHIP   => T_SPACESHIP,
+                                T_COALESCE    => T_COALESCE,
                                 T_BITWISE_AND => T_BITWISE_AND,
                                 T_BITWISE_OR  => T_BITWISE_OR,
                                 T_BITWISE_XOR => T_BITWISE_XOR,

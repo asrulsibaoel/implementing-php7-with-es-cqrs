@@ -1,6 +1,7 @@
 # zend-expressive
 
 [![Build Status](https://secure.travis-ci.org/zendframework/zend-expressive.svg?branch=master)](https://secure.travis-ci.org/zendframework/zend-expressive)
+[![Coverage Status](https://coveralls.io/repos/github/zendframework/zend-expressive/badge.svg?branch=master)](https://coveralls.io/github/zendframework/zend-expressive?branch=master)
 
 *Develop PSR-7 middleware applications in minutes!*
 
@@ -11,7 +12,7 @@ features:
 - Routing. Choose your own router; we support:
     - [Aura.Router](https://github.com/auraphp/Aura.Router)
     - [FastRoute](https://github.com/nikic/FastRoute)
-    - [ZF2's MVC router](https://github.com/zendframework/zend-mvc)
+    - [zend-router](https://github.com/zendframework/zend-expressive-router)
 - DI Containers, via [container-interop](https://github.com/container-interop/container-interop).
   Middleware matched via routing is retrieved from the composed container.
 - Optionally, templating. We support:
@@ -63,7 +64,7 @@ We currently support and provide the following routing integrations:
   `composer require zendframework/zend-expressive-aurarouter`
 - [FastRoute](https://github.com/nikic/FastRoute):
   `composer require zendframework/zend-expressive-fastroute`
-- [ZF2 MVC Router](https://github.com/zendframework/zend-mvc):
+- [zend-router](https://github.com/zendframework/zend-expressive-router):
   `composer require zendframework/zend-expressive-zendrouter`
 
 We recommend using a dependency injection container, and typehint against

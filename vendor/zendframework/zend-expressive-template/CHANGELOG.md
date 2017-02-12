@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.4 - 2017-01-11
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#10](https://github.com/zendframework/zend-expressive-template/pull/10) fixes
+  the logic for merging default parameters with those passed when rendering in
+  `DefaultParamsTrait::mergeParams()` to correctly replace values when duplicate
+  entries are found.
+
 ## 1.0.3 - 2016-01-28
 
 ### Added

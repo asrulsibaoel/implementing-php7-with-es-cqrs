@@ -116,15 +116,16 @@ EOT
         );
 
         if (! $up && ! $down) {
-            $output->writeln('No changes detected in your mapping information.', 'ERROR');
+            $output->writeln('No changes detected in your mapping information.');
 
             return;
         }
 
-        $version = date('YmdHis');
+        $version = $configuration->generateVersionNumber();
         $path = $this->generateMigration($configuration, $input, $version, $up, $down);
 
         $output->writeln(sprintf('Generated new migration class to "<info>%s</info>" from schema differences.', $path));
+        $output->writeln(file_get_contents($path));
     }
 
     private function buildCodeFromSql(Configuration $configuration, array $sql, $formatted=false, $lineLength=120)
@@ -158,7 +159,7 @@ EOT
             array_unshift(
                 $code,
                 sprintf(
-                    "\$this->abortIf(\$this->connection->getDatabasePlatform()->getName() != %s, %s);",
+                    "\$this->abortIf(\$this->connection->getDatabasePlatform()->getName() !== %s, %s);",
                     var_export($currentPlatform, true),
                     var_export(sprintf("Migration can only be executed safely on '%s'.", $currentPlatform), true)
                 ),

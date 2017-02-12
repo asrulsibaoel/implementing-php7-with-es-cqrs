@@ -1,3 +1,3 @@
 #!/usr/bin/env php
 <?php
-include('doctrine-migrations');
+include('doctrine-migrations.php');

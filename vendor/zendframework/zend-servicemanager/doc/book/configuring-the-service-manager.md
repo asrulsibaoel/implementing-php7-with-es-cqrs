@@ -8,7 +8,7 @@ constructor. The following keys are:
 - `abstract_factories`: a list of abstract factories classes. An abstract
   factory is a factory that can potentially create any object, based on some
   criterias.
-- `delegators`: TODO (delegators are described in their own section).
+- `delegators`: an associative array that maps service keys to lists of delegator factory keys, see the [delegators documentation](delegators.md) for more details.
 - `aliases`: associative array that map a key to a service key (or another alias).
 - `initializers`: a list of callable or initializers that are run whenever a service has been created.
 - `shared`: associative array that map a service name to a boolean, in order to
@@ -544,7 +544,7 @@ $serviceManager->addAbstractFactory(new CustomAbstractFactory());
 // Add a delegator factory for the DateTime service
 $serviceManager->addDelegator(DateTime::class, function ($container, $name, $callback) {
     $dateTime = $callback();
-    $dataTime->setTimezone(new DateTimezone('UTC'));
+    $dateTime->setTimezone(new DateTimezone('UTC'));
     return $dateTime;
 });
 

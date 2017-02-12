@@ -20,7 +20,11 @@
 namespace Doctrine\DBAL\Migrations\Tools\Console\Helper;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Migrations\Configuration\ArrayConfiguration;
 use Doctrine\DBAL\Migrations\Configuration\Configuration;
+use Doctrine\DBAL\Migrations\Configuration\JsonConfiguration;
+use Doctrine\DBAL\Migrations\Configuration\XmlConfiguration;
+use Doctrine\DBAL\Migrations\Configuration\YamlConfiguration;
 use Doctrine\DBAL\Migrations\OutputWriter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Helper\Helper;
@@ -77,7 +81,8 @@ class ConfigurationHelper extends Helper
             'migrations.xml',
             'migrations.yml',
             'migrations.yaml',
-            'migrations.json'
+            'migrations.json',
+            'migrations.php',
         ];
         foreach ($defaultConfig as $config) {
             if ($this->configExists($config)) {
@@ -98,13 +103,13 @@ class ConfigurationHelper extends Helper
 
     private function loadConfig($config, OutputWriter $outputWriter)
     {
-        $map = array(
-            'xml'   => '\XmlConfiguration',
-            'yaml'  => '\YamlConfiguration',
-            'yml'   => '\YamlConfiguration',
-            'php'   => '\ArrayConfiguration',
-            'json'  => '\JsonConfiguration'
-        );
+        $map = [
+            'xml'   => XmlConfiguration::class,
+            'yaml'  => YamlConfiguration::class,
+            'yml'   => YamlConfiguration::class,
+            'php'   => ArrayConfiguration::class,
+            'json'  => JsonConfiguration::class,
+        ];
 
         $info = pathinfo($config);
         // check we can support this file type
@@ -112,8 +117,7 @@ class ConfigurationHelper extends Helper
             throw new \InvalidArgumentException('Given config file type is not supported');
         }
 
-        $class         = 'Doctrine\DBAL\Migrations\Configuration';
-        $class        .= $map[$info['extension']];
+        $class         = $map[$info['extension']];
         $configuration = new $class($this->connection, $outputWriter);
         $configuration->load($config);
 

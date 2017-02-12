@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @see       https://github.com/zendframework/zend-expressive for the canonical source repository
- * @copyright Copyright (c) 2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   https://github.com/zendframework/zend-expressive/blob/master/LICENSE.md New BSD License
+ * @see       https://github.com/zendframework/zend-expressive-twigrenderer for the canonical source repository
+ * @copyright Copyright (c) 2015-2017 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license   https://github.com/zendframework/zend-expressive-twigrenderer/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Expressive\Twig;
@@ -18,7 +16,7 @@ use Zend\Expressive\Template\TemplatePath;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
 /**
- * Template implementation bridging league/plates
+ * Template implementation bridging twig/twig
  */
 class TwigRenderer implements TemplateRendererInterface
 {
@@ -44,6 +42,7 @@ class TwigRenderer implements TemplateRendererInterface
      *  Constructor
      *
      * @param TwigEnvironment $template
+     * @param string          $suffix
      */
     public function __construct(TwigEnvironment $template = null, $suffix = 'html')
     {
@@ -90,7 +89,7 @@ class TwigRenderer implements TemplateRendererInterface
      * @param string $name
      * @param array|object $params
      * @return string
-     * @throws \Zend\Expressive\Exception\InvalidArgumentException for non-array, non-object parameters.
+     * @throws \Zend\Expressive\Template\Exception\InvalidArgumentException for non-array, non-object parameters.
      */
     public function render($name, $params = [])
     {

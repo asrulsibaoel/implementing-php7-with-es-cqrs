@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @see       http://github.com/zendframework/zend-stratigility for the canonical source repository
- * @copyright Copyright (c) 2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2015-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-stratigility/blob/master/LICENSE.md New BSD License
  */
 
@@ -16,6 +16,11 @@ use Zend\Escaper\Escaper;
 
 /**
  * Handle incomplete requests
+ *
+ * @deprecated since 1.3.0; will be removed with 2.0.0. Please see
+ *     https://docs.zendframework.com/zend-stratigility/migration/to-v2/
+ *     for more information on how to update your code for forwards
+ *     compatibility.
  */
 class FinalHandler
 {
@@ -44,12 +49,9 @@ class FinalHandler
      */
     public function __construct(array $options = [], ResponseInterface $response = null)
     {
-        $this->options  = $options;
-        $this->response = $response;
+        $this->options = $options;
 
-        if ($response) {
-            $this->bodySize = $response->getBody()->getSize();
-        }
+        $this->setOriginalResponse($response);
     }
 
     /**
@@ -98,6 +100,20 @@ class FinalHandler
     }
 
     /**
+     * Set the original response and response body size for comparison.
+     *
+     * @param ResponseInterface $response
+     */
+    public function setOriginalResponse(ResponseInterface $response = null)
+    {
+        $this->response = $response;
+
+        if ($response) {
+            $this->bodySize = $response->getBody()->getSize();
+        }
+    }
+
+    /**
      * Handle an error condition
      *
      * Use the $error to create details for the response.
@@ -105,18 +121,18 @@ class FinalHandler
      * @param mixed $error
      * @param RequestInterface $request Request instance.
      * @param ResponseInterface $response Response instance.
-     * @return Http\Response
+     * @return ResponseInterface
      */
     private function handleError($error, RequestInterface $request, ResponseInterface $response)
     {
-        $response = $response->withStatus(
-            Utils::getStatusCode($error, $response)
-        );
-
+        $statusCode = Utils::getStatusCode($error, $response);
+        $reasonPhrase = $response->getStatusCode() === $statusCode
+                      ? $response->getReasonPhrase()
+                      : '';
+        $response = $response->withStatus($statusCode, $reasonPhrase);
         $message = $response->getReasonPhrase() ?: 'Unknown Error';
-        if (! isset($this->options['env'])
-            || $this->options['env'] !== 'production'
-        ) {
+
+        if (isset($this->options['env']) && $this->options['env'] !== 'production') {
             $message = $this->createDevelopmentErrorMessage($error);
         }
 
@@ -132,7 +148,7 @@ class FinalHandler
      *
      * @param RequestInterface $request Request instance.
      * @param ResponseInterface $response Response instance.
-     * @return Http\Response
+     * @return ResponseInterface
      */
     private function create404(RequestInterface $request, ResponseInterface $response)
     {
@@ -168,8 +184,7 @@ class FinalHandler
     private function createDevelopmentErrorMessage($error)
     {
         if ($error instanceof Exception) {
-            $message  = $error->getMessage() . "\n";
-            $message .= $error->getTraceAsString();
+            $message  = $error;
         } elseif (is_object($error) && ! method_exists($error, '__toString')) {
             $message = sprintf('Error of type "%s" occurred', get_class($error));
         } else {
@@ -189,11 +204,14 @@ class FinalHandler
      * If the request is not an Http\Request, casts it to one prior to invoking
      * the error handler.
      *
+     * If the response is not an Http\Response, casts it to one prior to invoking
+     * the error handler.
+     *
      * @param mixed $error
      * @param RequestInterface $request
-     * @param Http\Response $response
+     * @param ResponseInterface $response
      */
-    private function triggerError($error, RequestInterface $request, Http\Response $response)
+    private function triggerError($error, RequestInterface $request, ResponseInterface $response)
     {
         if (! isset($this->options['onerror'])
             || ! is_callable($this->options['onerror'])
@@ -205,7 +223,7 @@ class FinalHandler
         $onError(
             $error,
             ($request instanceof Http\Request) ? $request : new Http\Request($request),
-            $response
+            ($response instanceof Http\Response) ? $response : new Http\Response($response)
         );
     }
 
@@ -220,8 +238,7 @@ class FinalHandler
      */
     private function getUriFromRequest(RequestInterface $request)
     {
-        if ($request instanceof Http\Request) {
-            $original = $request->getOriginalRequest();
+        if (false !== ($original = $request->getAttribute('originalRequest', false))) {
             return $original->getUri();
         }
 
@@ -231,20 +248,13 @@ class FinalHandler
     /**
      * Write the given message to the response and mark it complete.
      *
-     * If the message is an Http\Response decorator, call and return its
-     * `end()` method; otherwise, decorate the response and `end()` it.
-     *
      * @param ResponseInterface $response
      * @param string $message
-     * @return Http\Response
+     * @return ResponseInterface
      */
     private function completeResponse(ResponseInterface $response, $message)
     {
-        if ($response instanceof Http\Response) {
-            return $response->end($message);
-        }
-
-        $response = new Http\Response($response);
-        return $response->end($message);
+        $response->getBody()->write($message);
+        return $response;
     }
 }

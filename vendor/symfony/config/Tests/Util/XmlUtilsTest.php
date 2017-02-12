@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Config\Tests\Loader;
+namespace Symfony\Component\Config\Tests\Util;
 
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -47,7 +47,7 @@ class XmlUtilsTest extends \PHPUnit_Framework_TestCase
             $this->assertContains('XSD file or callable', $e->getMessage());
         }
 
-        $mock = $this->getMock(__NAMESPACE__.'\Validator');
+        $mock = $this->getMockBuilder(__NAMESPACE__.'\Validator')->getMock();
         $mock->expects($this->exactly(2))->method('validate')->will($this->onConsecutiveCalls(false, true));
 
         try {
@@ -172,15 +172,10 @@ class XmlUtilsTest extends \PHPUnit_Framework_TestCase
             } catch (\InvalidArgumentException $e) {
                 $this->assertEquals(sprintf('File %s does not contain valid XML, it is empty.', $file), $e->getMessage());
             }
-        } catch (\Exception $e) {
+        } finally {
             restore_error_handler();
             error_reporting($errorReporting);
-
-            throw $e;
         }
-
-        restore_error_handler();
-        error_reporting($errorReporting);
 
         $disableEntities = libxml_disable_entity_loader(true);
         libxml_disable_entity_loader($disableEntities);

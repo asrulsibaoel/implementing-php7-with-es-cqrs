@@ -3,7 +3,7 @@
 [![Build Status](https://secure.travis-ci.org/zendframework/zend-expressive-twigrenderer.svg?branch=master)](https://secure.travis-ci.org/zendframework/zend-expressive-twigrenderer)
 
 Provides [Twig](http://twig.sensiolabs.org/) integration for
-[Expressive](https://github.com/zendframework/zend-expressive).
+[Expressive](https://docs.zendframework.com//zend-expressive/).
 
 ## Installation
 
@@ -20,14 +20,14 @@ can recommend the following implementations:
   `composer require zendframework/zend-servicemanager`
 - [pimple-interop](https://github.com/moufmouf/pimple-interop):
   `composer require mouf/pimple-interop`
-- [Aura.Di](https://github.com/auraphp/Aura.Di)
+- [Aura.Di](https://github.com/auraphp/Aura.Di): `composer require aura/di`
 
 ## Twig Extension
 
 The included Twig extension adds support for url generation. The extension is automatically activated if the
 [UrlHelper](https://github.com/zendframework/zend-expressive-helpers#urlhelper) and
-[ServerUrlHelper](https://github.com/zendframework/zend-expressive-helpers#serverurlhelper) are registered with the
-container.
+[ServerUrlHelper](https://github.com/zendframework/zend-expressive-helpers#serverurlhelper) 
+are registered with the container.
 
 - ``path``: Render the relative path for a given route and parameters. If there
   is no route, it returns the current path.
@@ -36,6 +36,20 @@ container.
   {{ path('article_show', {'id': '3'}) }}
   Generates: /article/3
   ```
+  
+  ``path`` supports optional query parameters and a fragment identifier.
+
+  ```twig
+  {{ path('article_show', {'id': '3'}, {'foo': 'bar'}, 'fragment') }}
+  Generates: /article/3?foo=bar#fragment
+  ```
+
+  By default the current route result is used where applicable. To disable this
+  the `reuse_result_params` option can be set.
+
+  ```twig
+  {{ path('article_show', {}, {}, null, {'reuse_result_params': false}) }}
+  ```
 
 - ``url``: Render the absolute url for a given route and parameters. If there is
   no route, it returns the current url.
@@ -43,6 +57,20 @@ container.
   ```twig
   {{ url('article_show', {'slug': 'article.slug'}) }}
   Generates: http://example.com/article/article.slug
+  ```
+
+  ``url`` also supports query parameters and a fragment identifier.
+
+  ```twig
+  {{ url('article_show', {'id': '3'}, {'foo': 'bar'}, 'fragment') }}
+  Generates: http://example.com/article/3?foo=bar#fragment
+  ```
+
+  By default the current route result is used where applicable. To disable this
+  the `reuse_result_params` option can be set.
+
+  ```twig
+  {{ url('article_show', {}, {}, null, {'reuse_result_params': false}) }}
   ```
 
 - ``absolute_url``: Render the absolute url from a given path. If the path is
@@ -86,14 +114,18 @@ container.
     'extensions' => [
         // extension service names or instances
     ],
+    'runtime_loaders' => [
+        // runtime loaders names or instances   
+    ],
     'globals' => [
         // Global variables passed to twig templates
         'ga_tracking' => 'UA-XXXXX-X'
     ],
+    'timezone' => 'default timezone identifier, e.g.: America/New_York',
 ],
 ```
 
 ## Documentation
 
 See the [zend-expressive](https://github.com/zendframework/zend-expressive/blob/master/doc/book)
-documentation tree, or browse online at http://zend-expressive.rtfd.org.
+documentation tree, or browse online at https://docs.zendframework.com/zend-expressive/features/template/twig/.

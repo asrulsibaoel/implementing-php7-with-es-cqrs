@@ -2,6 +2,161 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.6 - 2017-01-09
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#420](https://github.com/zendframework/zend-expressive/pull/420) fixes the
+  `routeMiddleware()`'s handling of 405 errors such that it now no longer emits
+  deprecation notices when running under the Stratigility 1.3 series.
+
+## 1.0.5 - 2016-12-08
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#403](https://github.com/zendframework/zend-expressive/pull/403) updates the
+  `AppFactory::create()` logic to raise exceptions in either of the following
+  scenarios:
+  - no container is specified, and the class `Zend\ServiceManager\ServiceManager`
+    is not available.
+  - no router is specified, and the class `Zend\Expressive\Router\FastRouteRouter`
+    is not available.
+- [#405](https://github.com/zendframework/zend-expressive/pull/405) fixes how
+  the `TemplatedErrorHandler` injects templated content into the response.
+  Previously, it would `write()` directly to the existing response body, which
+  could lead to issues if previous middleware had written to the response (as
+  the templated contents would append the previous contents). With this release,
+  it now creates a new `Zend\Diactoros\Stream`, writes to that, and returns a
+  new response with that new stream, guaranteeing it only contains the new
+  contents.
+- [#404](https://github.com/zendframework/zend-expressive/pull/404) fixes the
+  `swallowDeprecationNotices()` handler such that it will not swallow a global
+  handler once application execution completes.
+
+## 1.0.4 - 2016-12-07
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#402](https://github.com/zendframework/zend-expressive/pull/402) fixes how
+  `Application::__invoke()` registers the error handler designed to swallow
+  deprecation notices, as introduced in 1.0.3. It now checks to see if another
+  error handler was previously registered, and, if so, creates a composite
+  handler that will delegate to the previous for all other errors.
+
+## 1.0.3 - 2016-11-11
+
+### Added
+
+- Nothing.
+
+### Changes
+
+- [#395](https://github.com/zendframework/zend-expressive/pull/395) updates
+  `Application::__invoke()` to add an error handler to swallow deprecation
+  notices due to triggering error middleware when using Stratigility 1.3+. Since
+  error middleware is triggered whenever the `raiseThrowables` flag is not
+  enabled and an error or empty queue situation is encountered, handling it this
+  way prevents any such errors from bubbling out of the application.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 1.0.2 - 2016-11-11
+
+### Added
+
+- Nothing.
+
+### Changes
+
+- [#393](https://github.com/zendframework/zend-expressive/pull/393) updates
+  `Application::run()` to inject the request with an `originalResponse`
+  attribute using the provided response as the value.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#393](https://github.com/zendframework/zend-expressive/pull/393) fixes how
+  each of the `TemplatedErrorHandler` and `WhoopsErrorHandler` access the
+  "original" request, URI, and/or response. Previously, these used
+  Stratigility-specific methods; they now use request attributes, eliminating
+  deprecation notices emitted in Stratigility 1.3+ versions.
+
+## 1.0.1 - 2016-11-11
+
+### Added
+
+- [#306](https://github.com/zendframework/zend-expressive/pull/306) adds a
+  cookbook recipe covering flash messages.
+- [#384](https://github.com/zendframework/zend-expressive/pull/384) adds support
+  for Whoops version 2 releases, providing PHP 7 support for Whoops.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#391](https://github.com/zendframework/zend-expressive/pull/391) fixes the
+  `Application::run()` implementation to prevent emission of deprecation notices
+  when used with Stratigility 1.3.
+
 ## 1.0.0 - 2016-01-28
 
 Initial stable release.
