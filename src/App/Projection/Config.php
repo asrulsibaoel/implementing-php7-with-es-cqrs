@@ -32,9 +32,6 @@ class Config
             'prooph' => [
                 'service_bus' => [
                     'event_bus' => [
-                        'plugins' => [
-                            OnEventStrategy::class
-                        ],
                         'router' => [
                             'routes' => [
                                 UserWasRegistered::class => [

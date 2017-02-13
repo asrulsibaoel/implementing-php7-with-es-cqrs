@@ -16,5 +16,7 @@ class ConfigTest extends Base
         $config = new Config();
 
         $this->assertArrayHasKey('prooph', $config());
+
+        //remember me to finish this.
     }
 }
