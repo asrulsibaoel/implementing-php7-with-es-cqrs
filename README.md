@@ -10,13 +10,16 @@ Then open your terminal and type this ```git clone https://yourusername@github.c
 ### API List
 
 ##### Get List User
-Method : GET\
-url    : /user/list\
+Method : GET
+url    : /user/list
 params : page (integer)
  
 ##### Register User
-Method : POST \
-URL    : /user/register\
+Method : POST
+URL    : /user/register
 params : username (string), email (string), password (string)
 
-##### 
+##### Update User
+Method : POST
+URL : /user/update/{id}
+params : name (string)
