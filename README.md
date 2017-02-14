@@ -10,7 +10,7 @@ Then open your terminal and type this ```git clone https://yourusername@github.c
 ### API List
 
 ##### Get List User
-Method : GET
+Method : GET \n
 url    : /user/list
 params : page (integer)
  
