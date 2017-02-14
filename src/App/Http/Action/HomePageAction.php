@@ -9,6 +9,7 @@ use App\Module\User\Model\UserId;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
+use Zend\Diactoros\Response\JsonResponse;
 use Zend\Expressive\Template\TemplateRendererInterface;
 use App\Projection\Product\ProductFinder;
 use Monolog\Logger;
@@ -45,12 +46,17 @@ final class HomePageAction
         ResponseInterface $response,
         callable $out = null
     ) : ResponseInterface {
-        $product = $this->productFinder->findLimited(0,7);
+//        $product = $this->productFinder->findLimited(0,7);
         $data = [
-            'product' => $product,
+            'response' => [
+                'error' => false,
+                'message' => "Home Page",
+                "data" => new \stdClass(),
+            ]
         ];
         
-        $this->logger->addCritical(json_encode($data));
-        return new HtmlResponse($this->template->render('app::home-page', $data));
+//        $this->logger->addCritical(json_encode($data));
+//        return new HtmlResponse($this->template->render('app::home-page', $data));
+        return new JsonResponse($data);
     }
 }
